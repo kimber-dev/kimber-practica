@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cliente;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -23,6 +25,7 @@ class ClientesController extends Controller
     public function create()
     {
         //
+        return Inertia::render('clientes/create');
     }
 
     /**
@@ -30,7 +33,25 @@ class ClientesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request);
+        // $request->validate([
+        //     'nombre' => 'required|string|max:60',
+        //     'apellido' => 'required|string|max:100',
+        //     'email' => 'required|string|lowercase|email|max:255|unique:'.Cliente::class,
+        //     'telefono' => 'required|string|numeric|max:11',
+        // ]);
+
+        // $cliente = Cliente::create([
+        //     'nombre' => $request->name,
+        //     'apellido' => $request->apellido,
+        //     'email' => $request->email,
+        //     'telefono' => $request->telefono,
+        // ]);
+
+        // event(new Registered($cliente));
+
+
+        // return redirect()->intended(route('clientes.index', absolute: false));
     }
 
     /**
