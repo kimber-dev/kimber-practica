@@ -4,19 +4,23 @@ import { Head, Link, router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Clientes',
-        href: '/clientes',
+        title: 'Tranferencias',
+        href: '/Transfers',
     },
 ];
 type RegisterForm = {
-    nombre: string;
-    apellidos: string;
-    email: string;
-    telefono: string;
+    remitente: string;
+    destinatario: string;
+    fecha: string;
+    agente: string;
+    monto: string;
+    estado: string;
+    observacion: string;
+    foto: string;
 };
 
-export default function Index({ clientes }) {
-    console.log(clientes);
+export default function Index({ transfers }: { transfers: any }) {
+    console.log(transfers);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Clientes" />
@@ -34,35 +38,52 @@ export default function Index({ clientes }) {
                     <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" className="px-6 py-3">
-                                Nombres
+                                Remitente
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Apellidos
+                                Destinatario
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Email
+                                Fecha
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                Telefono
+                                Agente
                             </th>
                             <th scope="col text-left" className="px-6 py-3">
+                                Monto
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Estado
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Observación
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Accion
                             </th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {clientes.map((cliente: any, key: number) => (
+                        {transfers.map((transfers: any, key: number) => (
                             <tr key={key} className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
                                 <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                                    {cliente.nombre}
+                                    {transfers.remitente}
                                 </th>
-                                <td className="px-6 py-4">{cliente.apellido}</td>
-                                <td className="px-6 py-4">{cliente.email}</td>
-                                <td className="px-6 py-4">{cliente.telefono}</td>
+                                <td className="px-6 py-4">{transfers.destinatario}</td>
+                                <td className="px-6 py-4">{transfers.fecha}</td>
+                                <td className="px-6 py-4">{transfers.agente}</td>
+                                <td className="px-6 py-4">{transfers.monto}</td>
+                                <td className="px-6 py-4">{transfers.estado}</td>
+                                <td className="px-6 py-4">{transfers.observacion}</td>
+                                {/* <td className="px-6 py-4">{transfers.foto}</td> */}
+
                                 <td>
-                                    <button onClick={() => handleDelete(cliente.id)} className="rounded bg-red-500 px-2 py-1 text-white">
+                                    <button onClick={() => handleDelete(transfers.id)} className="rounded bg-red-500 px-2 py-1 text-white">
                                         Eliminar
+                                    </button>
+                                    <button onClick={() => handleDelete(transfers.id)} className="rounded bg-blue-500 px-2 py-1 text-white">
+                                        Editar
                                     </button>
                                 </td>
                             </tr>
@@ -76,7 +97,7 @@ export default function Index({ clientes }) {
     );
 }
 function handleDelete(id: number) {
-    if (confirm('¿Estás seguro de eliminar este cliente?')) {
-        router.delete(route('clientes.destroy', id));
+    if (confirm('¿Estás seguro de eliminar esta tranferencia?')) {
+        router.delete(route('transfers.destroy', id));
     }
 }

@@ -17,7 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 type RegisterForm = {
     nombre: string;
-    apellidos: string;
+    apellido: string;
     email: string;
     telefono: string;
 };
@@ -25,7 +25,7 @@ type RegisterForm = {
 export default function Create() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         nombre: '',
-        apellidos: '',
+        apellido: '',
         email: '',
         telefono: '',
     });
@@ -50,36 +50,36 @@ export default function Create() {
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     <div className="grid gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Nombres</Label>
+                            <Label htmlFor="nombre">Nombres</Label>
                             <Input
                                 id="nombre"
                                 type="text"
                                 required
                                 autoFocus
                                 tabIndex={1}
-                                autoComplete="name"
+                                autoComplete="nombre"
                                 value={data.nombre}
                                 onChange={(e) => setData('nombre', e.target.value)}
                                 disabled={processing}
-                                placeholder="Full name"
+                                placeholder="Nombre del cliente"
                             />
                             <InputError message={errors.nombre} className="mt-2" />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="apellidos">Apellidos</Label>
+                            <Label htmlFor="apellido">Apellidos</Label>
                             <Input
-                                id="apellidos"
-                                type="apellidos"
+                                id="apellido"
+                                type="text"
                                 required
                                 tabIndex={2}
-                                autoComplete="apellidos"
-                                value={data.apellidos}
-                                onChange={(e) => setData('apellidos', e.target.value)}
+                                autoComplete="apellido"
+                                value={data.apellido}
+                                onChange={(e) => setData('apellido', e.target.value)}
                                 disabled={processing}
                                 placeholder="Apellidos completo"
                             />
-                            <InputError message={errors.apellidos} />
+                            <InputError message={errors.apellido} />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email </Label>
@@ -100,7 +100,7 @@ export default function Create() {
                             <Label htmlFor="telefono">Telefono </Label>
                             <Input
                                 id="telefono"
-                                type="telefono"
+                                type="number"
                                 required
                                 tabIndex={2}
                                 autoComplete="telefono"

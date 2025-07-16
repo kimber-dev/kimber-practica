@@ -16,7 +16,9 @@ class ClientesController extends Controller
     public function index()
     {
         //muestra el indice
-        return Inertia::render('clientes/index');
+        $clientes = Cliente::all();
+        //
+        return Inertia::render('clientes/index', compact('clientes'));
     }
 
     /**
@@ -33,25 +35,25 @@ class ClientesController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
+        // dd($request);
         // $request->validate([
         //     'nombre' => 'required|string|max:60',
         //     'apellido' => 'required|string|max:100',
         //     'email' => 'required|string|lowercase|email|max:255|unique:'.Cliente::class,
-        //     'telefono' => 'required|string|numeric|max:11',
+        //     'telefono' => 'required|string|numeric|max:11|min:10',
         // ]);
 
-        // $cliente = Cliente::create([
-        //     'nombre' => $request->name,
-        //     'apellido' => $request->apellido,
-        //     'email' => $request->email,
-        //     'telefono' => $request->telefono,
-        // ]);
+        $cliente = Cliente::create([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+        ]);
 
         // event(new Registered($cliente));
 
 
-        // return redirect()->intended(route('clientes.index', absolute: false));
+        return to_route('clientes.index')->with('success', 'Cliente creado correctamente.');
     }
 
     /**
@@ -68,6 +70,9 @@ class ClientesController extends Controller
     public function edit(string $id)
     {
         //
+        $cliente = Cliente::find($id);
+        return Inertia::render('clientes/edit', compact('cliente'));
+
     }
 
     /**
@@ -75,7 +80,14 @@ class ClientesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $cliente = Cliente::find($id);
+        $cliente->update([
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'email' => $request->email,
+            'telefono' => $request->telefono,
+        ]);
+        return to_route('clientes.index')->with('success', 'Cliente actualizado correctamente.');
     }
 
     /**
@@ -84,5 +96,8 @@ class ClientesController extends Controller
     public function destroy(string $id)
     {
         //
+        $cliente = Cliente::find($id);
+        $cliente->delete();
+        return to_route('clientes.index')->with('success', 'Cliente eliminado correctamente.');
     }
 }
