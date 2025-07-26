@@ -25,7 +25,7 @@ class TransferFactory extends Factory
             'monto' => fake()->randomFloat(2, 10, 1000),
             'estado' => fake()->randomElement(['pendiente', 'completado']),
             'observacion' => fake()->sentence(),
-            'foto' => fake()->imageUrl(640, 480, 'people', true, 'Faker', true)
+
         ];
     }
 }

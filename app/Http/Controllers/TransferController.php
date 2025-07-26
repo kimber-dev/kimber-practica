@@ -6,6 +6,7 @@ use App\Models\Transfer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class TransferController extends Controller
 {
@@ -15,7 +16,8 @@ class TransferController extends Controller
     public function index()
     {
         //
-        $transfers = Transfer::all();
+        // $transfers = Transfer::all();
+        $transfers = Transfer::with('fotos')->get(); // carga también sus fotos
         return Inertia::render('transfers/index', compact('transfers'));
     
     }
@@ -34,6 +36,16 @@ class TransferController extends Controller
     public function store(Request $request)
     {
         //
+        $tranferencia = Transfer::create([
+            'remitente' => $request->remitente,
+            'destinatario' => $request->destinatario,
+            'fecha' => $request->fecha,
+            'agente' => $request->agente,
+            'monto' => $request->monto,
+            'estado' => $request->estado,
+            'observacion' => $request->observacion,
+        ]);
+        return redirect()->route('transfers.index');
     }
 
     /**
@@ -55,19 +67,44 @@ class TransferController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Transfer $transfers)
+    public function update(Request $request, Transfer $transfer)
     {
-        //
+        $validated = $request->validate([
+        'remitente' => 'required|string|max:255',
+        'destinatario' => 'required|string|max:255',
+        'fecha' => 'required|date',
+        'agente' => 'nullable|string|max:255',
+        'monto' => 'required|numeric|min:0',
+        'estado' => 'required|string|in:pendiente,completado,cancelado',
+        'observacion' => 'nullable|string|max:1000',
+    ]);
+
+    $transfer->update($validated);
+
+    return redirect()->back()->with('success', 'Transferencia actualizada correctamente.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
-        $transfer = Transfer::find($id);
-        $transfer->delete();
-        return to_route('transfers.index')->with('success', 'Tranferencia eliminada correctamente.');
+    
+
+public function destroy(string $id)
+{
+    $transfer = Transfer::findOrFail($id);
+
+    // Eliminar cada foto del disco y luego de la base de datos
+    foreach ($transfer->fotos as $foto) {
+        if (Storage::disk('public')->exists($foto->ruta)) {
+            Storage::disk('public')->delete($foto->ruta);
+        }
+        $foto->delete();
     }
+
+    // Eliminar la transferencia
+    $transfer->delete();
+
+    return to_route('transfers.index')->with('success', 'Transferencia y fotos eliminadas correctamente.');
+}
+
 }

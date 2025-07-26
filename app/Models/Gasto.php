@@ -2,23 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Transfer extends Model
+class Gasto extends Model
 {
-    protected $table = 'transfers';
+    protected $table = 'gastos';
     protected $primaryKey = 'id';
     public $timestamps = false;
-use HasFactory;
+
     protected $fillable = [
-        'remitente',
-        'destinatario',
-        'fecha',
-        'agente',
+        'descripcion',
         'monto',
+        'fecha',
+        'tipo',
         'estado',
-        'observacion'
     ];
     public function fotos()
     {
