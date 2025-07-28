@@ -8,6 +8,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { DeleteIcon, Edit, ImageOff, ImageUp, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
+import DataTable, { TableColumn } from 'react-data-table-component';
 import Swal from 'sweetalert2';
 import GalleryModal from '../transfers/galleryModal';
 import SliderModal from '../transfers/sliderModal';
@@ -102,6 +103,70 @@ export default function Index({ gastos }: { gastos: any }) {
         setSelectedTransferId(id);
         setShowGalleryModal(true);
     };
+    const columns: TableColumn<any>[] = [
+        {
+            name: 'Fecha',
+            selector: (row) => row.fecha,
+            sortable: true,
+        },
+        {
+            name: 'Descripción',
+            selector: (row) => row.descripcion,
+            sortable: true,
+        },
+        {
+            name: 'Monto',
+            selector: (row) => row.monto,
+            sortable: true,
+        },
+        {
+            name: 'Tipo',
+            selector: (row) => row.tipo,
+            sortable: true,
+        },
+        {
+            name: 'Estado',
+            cell: (row) => (row.estado ? 'Ejecutado' : 'Pendiente'),
+            sortable: true,
+        },
+        {
+            name: 'Imagen',
+            cell: (row) => (
+                <div className="flex max-w-[200px] items-center space-x-2 overflow-x-auto">
+                    {row.fotos?.length > 0 ? (
+                        row.fotos.map((foto: any, index: number) => (
+                            <img
+                                key={foto.id}
+                                src={`/storage/${foto.ruta}`}
+                                onClick={() => handleOpenGallery(row.fotos, index, row.descripcion, row.id)}
+                                className="h-10 w-10 shrink-0 cursor-pointer rounded-full border border-gray-300 object-cover"
+                            />
+                        ))
+                    ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-gray-100">
+                            <ImageOff className="h-5 w-5 text-gray-400" />
+                        </div>
+                    )}
+                </div>
+            ),
+        },
+        {
+            name: 'Acción',
+            cell: (row) => (
+                <div className="flex gap-2">
+                    <button onClick={() => handleOpenFotoForm(row.descripcion, row.id)} className="rounded p-1 text-blue-700 hover:bg-blue-200">
+                        <ImageUp />
+                    </button>
+                    <button onClick={() => handleDelete(row.id)} className="rounded p-1 text-red-600 hover:bg-red-200">
+                        <DeleteIcon />
+                    </button>
+                    <button onClick={() => handleEdit(row)} className="rounded p-1 text-green-600 hover:bg-green-200">
+                        <Edit size={20} />
+                    </button>
+                </div>
+            ),
+        },
+    ];
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Gastos" />
@@ -213,98 +278,17 @@ export default function Index({ gastos }: { gastos: any }) {
                     </DialogContent>
                 </Dialog>
             </div>
-            <div className="relative overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
-                    <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">
-                                Fecha
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Descripcion
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Monto
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Tipo
-                            </th>
-
-                            <th scope="col" className="px-6 py-3">
-                                Estado
-                            </th>
-
-                            <th scope="col" className="px-6 py-3">
-                                Imagen
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Accion
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {gastos.length === 0 && (
-                            <tr>
-                                <td colSpan={8} className="py-6 text-center text-gray-500">
-                                    No hay gastos registradas.
-                                </td>
-                            </tr>
-                        )}
-                        {gastos.map((gasto: any, key: number) => (
-                            <tr key={key} className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-                                <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                                    {gasto.fecha}
-                                </th>
-                                <td className="px-6 py-4">{gasto.descripcion}</td>
-                                <td className="px-6 py-4">{gasto.monto}</td>
-                                <td className="px-6 py-4">{gasto.tipo}</td>
-                                <td className="px-6 py-4">{gasto.estado == true ? 'Ejecutado' : 'Pendiente'}</td>
-
-                                <td className="px-6 py-4">
-                                    <div className="flex max-w-[200px] items-center space-x-2 overflow-x-auto">
-                                        {gasto.fotos?.length > 0 ? (
-                                            gasto.fotos.map((foto: any, index: number) => (
-                                                <img
-                                                    key={foto.id}
-                                                    src={`/storage/${foto.ruta}`}
-                                                    onClick={() => handleOpenGallery(gasto.fotos, index, gasto.descripcion, gasto.id)}
-                                                    className="h-10 w-10 shrink-0 cursor-pointer rounded-full border border-gray-300 object-cover"
-                                                    alt="Foto"
-                                                />
-                                            ))
-                                        ) : (
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-gray-100">
-                                                <ImageOff className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                        )}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="m-2 flex gap-2">
-                                        <button
-                                            onClick={() => handleOpenFotoForm(gasto.descripcion, gasto.id)}
-                                            className="cursor-pointer rounded p-1 text-blue-700 transition hover:bg-blue-200"
-                                        >
-                                            <ImageUp />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(gasto.id)}
-                                            className="cursor-pointer rounded p-1 text-red-600 transition hover:bg-red-200 hover:text-red-800"
-                                        >
-                                            <DeleteIcon />
-                                        </button>
-                                        <button
-                                            onClick={() => handleEdit(gasto)}
-                                            className="cursor-pointer rounded p-1 text-green-600 transition hover:bg-green-200 hover:text-green-800"
-                                        >
-                                            <Edit size={20} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="mt-4 w-full max-w-full px-4">
+                <DataTable
+                    title="Listado de Gastos"
+                    columns={columns}
+                    data={gastos}
+                    pagination
+                    highlightOnHover
+                    responsive
+                    persistTableHead
+                    noDataComponent="No hay gastos registrados."
+                />
             </div>
 
             <SliderModal

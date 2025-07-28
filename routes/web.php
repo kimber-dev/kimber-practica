@@ -7,15 +7,20 @@ use App\Http\Controllers\TransferController;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Route::get('dashboard', function () {
+    //     return Inertia::render('dashboard');
+    // })->name('dashboard');
+    // routes/web.php
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('clientes',[ClientesController::class, 'index'])->name('clientes.index');
     Route::get('clientes/create',[ClientesController::class, 'create'])->name('clientes.create');
     Route::post('clientes',[ClientesController::class, 'store'])->name('clientes.store');
@@ -38,6 +43,10 @@ Route::post('gastos',[GastoController::class, 'store'])->name('gastos.store');
 
 Route::delete('/fotos/{foto}', [FotoController::class, 'destroy'])->name('fotos.destroy');//esto es para
 
+
+
+Route::get('auth/{provider}', [SocialiteController::class, 'redirect'])->name('socialite.redirect');
+Route::get('auth/{provider}/callback', [SocialiteController::class, 'callback'])->name('socialite.callback');
 
 
 

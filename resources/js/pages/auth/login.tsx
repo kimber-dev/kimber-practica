@@ -102,6 +102,14 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         Sign up
                     </TextLink>
                 </div>
+                <a
+                    href={route('socialite.redirect', { provider: 'google' })}
+                    className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                    target="_self" // importante
+                    rel="noopener noreferrer"
+                >
+                    Iniciar sesión con Google
+                </a>
             </form>
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}
