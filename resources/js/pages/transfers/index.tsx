@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -26,6 +27,7 @@ type RegisterForm = {
     monto: string;
     estado: string;
     observacion?: string;
+    cuenta: string;
     foto?: File | null;
 };
 
@@ -38,6 +40,7 @@ export default function Index({ transfers }: { transfers: any }) {
         agente: '',
         monto: '',
         estado: 'pendiente',
+        cuenta: 'Interbank', // Valor por defecto
         observacion: '',
     });
     const submit: FormEventHandler = (e) => {
@@ -73,6 +76,7 @@ export default function Index({ transfers }: { transfers: any }) {
             agente: '',
             monto: '',
             estado: 'pendiente',
+            cuenta: 'Interbank', // Valor por defecto
             observacion: '',
         });
         setEditingTransfer(null);
@@ -86,6 +90,7 @@ export default function Index({ transfers }: { transfers: any }) {
             agente: transfer.agente,
             monto: transfer.monto,
             estado: transfer.estado || 'pendiente',
+            cuenta: transfer.cuenta, // Valor por defecto
             observacion: transfer.observacion || '',
         });
         setEditingTransfer(transfer); // Carga datos
@@ -171,7 +176,7 @@ export default function Index({ transfers }: { transfers: any }) {
                                         value={data.fecha}
                                         onChange={(e) => setData('fecha', e.target.value)}
                                         disabled={processing}
-                                        placeholder="feccha de tranferencia"
+                                        placeholder="fecha de tranferencia"
                                     />
                                     <InputError message={errors.fecha} />
                                 </div>
@@ -206,20 +211,32 @@ export default function Index({ transfers }: { transfers: any }) {
                                     <InputError message={errors.monto} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="estado">Estado </Label>
-                                    <Input
-                                        id="estado"
-                                        type="text"
-                                        required
-                                        tabIndex={2}
-                                        autoComplete="estado"
-                                        value={data.estado}
-                                        onChange={(e) => setData('estado', e.target.value)}
-                                        disabled={processing}
-                                        placeholder="estado tranferencia"
-                                    />
+                                    <Label htmlFor="estado">Estado transferencia</Label>
+                                    <Select value={data.estado} onValueChange={(value) => setData('estado', value)}>
+                                        <SelectTrigger id="estado" disabled={processing}>
+                                            <SelectValue placeholder="Selecciona un estado" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="pendiente">Pendiente</SelectItem>
+                                            <SelectItem value="completado">Completado</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <InputError message={errors.estado} />
                                 </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="cuenta">Cuenta destino</Label>
+                                    <Select value={data.cuenta} onValueChange={(value) => setData('cuenta', value)}>
+                                        <SelectTrigger id="cuenta" disabled={processing}>
+                                            <SelectValue placeholder="Selecciona una cuenta" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Interbank">Cuenta de Interbank</SelectItem>
+                                            <SelectItem value="BCP">BCP</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError message={errors.cuenta} />
+                                </div>
+
                                 <div className="grid gap-2">
                                     <Label htmlFor="observacion">Observacion </Label>
                                     <Input
@@ -244,8 +261,8 @@ export default function Index({ transfers }: { transfers: any }) {
                     </DialogContent>
                 </Dialog>
             </div>
-            <div className="relative overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
+            <div className="overflow-x-auto">
+                <table className="w-full table-auto text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
                     <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" className="px-6 py-3">
@@ -257,7 +274,7 @@ export default function Index({ transfers }: { transfers: any }) {
                             <th scope="col" className="px-6 py-3">
                                 Fecha
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="hidden px-6 py-3 sm:table-cell">
                                 Agente
                             </th>
                             <th scope="col text-left" className="px-6 py-3">
@@ -267,8 +284,12 @@ export default function Index({ transfers }: { transfers: any }) {
                                 Estado
                             </th>
                             <th scope="col" className="px-6 py-3">
+                                Cuenta
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                                 Observación
                             </th>
+
                             <th scope="col" className="px-6 py-3">
                                 Imagen
                             </th>
@@ -287,15 +308,21 @@ export default function Index({ transfers }: { transfers: any }) {
                             </tr>
                         )}
                         {transfers.map((transfer: any, key: number) => (
-                            <tr key={key} className="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+                            <tr
+                                key={key}
+                                className={`border-b dark:border-gray-700 ${
+                                    transfer.cuenta === 'BCP' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-green-100 dark:bg-green-900/30'
+                                }`}
+                            >
                                 <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white">
                                     {transfer.remitente}
                                 </th>
                                 <td className="px-6 py-4">{transfer.destinatario}</td>
-                                <td className="px-6 py-4">{transfer.fecha}</td>
-                                <td className="px-6 py-4">{transfer.agente}</td>
+                                <td className="px-6 py-4">{new Date(transfer.fecha).toLocaleDateString('es-PE')}</td>
+                                <td className="hidden px-6 py-4 sm:table-cell">{transfer.agente}</td>
                                 <td className="px-6 py-4">{transfer.monto}</td>
                                 <td className="px-6 py-4">{transfer.estado}</td>
+                                <td className="px-6 py-4">{transfer.cuenta}</td>
                                 <td className="px-6 py-4">{transfer.observacion}</td>
                                 {/* <td className="px-6 py-4">{transfer.foto}</td> */}
                                 <td className="px-6 py-4">

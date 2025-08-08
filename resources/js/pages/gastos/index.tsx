@@ -3,13 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
+import { saveAs } from 'file-saver';
 import { DeleteIcon, Edit, ImageOff, ImageUp, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 import GalleryModal from '../transfers/galleryModal';
 import SliderModal from '../transfers/sliderModal';
 
@@ -24,17 +27,52 @@ type RegisterForm = {
     monto: number;
     fecha: string;
     tipo: string;
-    estado: boolean;
+    estado: string;
 };
 
 export default function Index({ gastos }: { gastos: any }) {
-    console.log(gastos);
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         descripcion: '',
         monto: 0,
         fecha: '',
         tipo: '',
-        estado: false,
+        estado: 'true',
+    });
+    function saludar(nombre: string, edad: number) {
+        return { length: 1 };
+    }
+    console.log(saludar.length);
+
+    const exportToExcel = () => {
+        const data = gastos.map((gasto: any) => ({
+            Fecha: gasto.fecha,
+            Descripción: gasto.descripcion,
+            Monto: gasto.monto,
+            Tipo: gasto.tipo,
+            Estado: gasto.estado ? 'Ejecutado' : 'Pendiente',
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Gastos');
+
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+        saveAs(dataBlob, 'gastos.xlsx');
+    };
+    const [filterText, setFilterText] = useState('');
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+
+    // Filtrar datos
+    const filteredGastos = gastos.filter((item: any) => {
+        return (
+            item.descripcion?.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.fecha?.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.monto?.toString().toLowerCase().includes(filterText.toLowerCase()) ||
+            item.tipo?.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.estado?.toLowerCase().includes(filterText.toLowerCase())
+        );
     });
 
     const submit: FormEventHandler = (e) => {
@@ -67,8 +105,8 @@ export default function Index({ gastos }: { gastos: any }) {
             descripcion: '',
             monto: 0,
             fecha: '',
-            tipo: '',
-            estado: true,
+            tipo: 'Gastos comunes',
+            estado: 'true',
         });
         setEditingGasto(null);
         setShowModal(true);
@@ -106,13 +144,15 @@ export default function Index({ gastos }: { gastos: any }) {
     const columns: TableColumn<any>[] = [
         {
             name: 'Fecha',
-            selector: (row) => row.fecha,
+            selector: (row) => row.fecha?.substring(0, 10).split('-').reverse().join('/'),
             sortable: true,
         },
+
         {
             name: 'Descripción',
             selector: (row) => row.descripcion,
             sortable: true,
+            cell: (row) => <div className="max-w-xs break-words whitespace-normal">{row.descripcion}</div>,
         },
         {
             name: 'Monto',
@@ -173,8 +213,10 @@ export default function Index({ gastos }: { gastos: any }) {
             <div className="flex justify-end">
                 <Dialog open={showModal} onOpenChange={setShowModal}>
                     <DialogTrigger asChild>
-                        <DialogTrigger asChild className="m-2">
-                            <Button onClick={handleNew}>Nuevo</Button>
+                        <DialogTrigger asChild>
+                            <Button onClick={handleNew} className="mt-2 mr-4 mb-2">
+                                Nuevo
+                            </Button>
                         </DialogTrigger>
                     </DialogTrigger>
                     <DialogContent>
@@ -188,9 +230,8 @@ export default function Index({ gastos }: { gastos: any }) {
                             <div className="grid gap-6">
                                 <div className="grid gap-2">
                                     <Label htmlFor="descripcion">Descripcion</Label>
-                                    <Input
+                                    <textarea
                                         id="descripcion"
-                                        type="text"
                                         required
                                         autoFocus
                                         tabIndex={1}
@@ -198,8 +239,10 @@ export default function Index({ gastos }: { gastos: any }) {
                                         value={data.descripcion}
                                         onChange={(e) => setData('descripcion', e.target.value)}
                                         disabled={processing}
-                                        placeholder="descripcion"
+                                        placeholder="Descripción"
+                                        className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
                                     />
+
                                     <InputError message={errors.descripcion} className="mt-2" />
                                 </div>
 
@@ -218,6 +261,7 @@ export default function Index({ gastos }: { gastos: any }) {
                                     />
                                     <InputError message={errors.fecha} />
                                 </div>
+
                                 <div className="grid gap-2">
                                     <Label htmlFor="monto">Monto </Label>
                                     <Input
@@ -233,39 +277,35 @@ export default function Index({ gastos }: { gastos: any }) {
                                     />
                                     <InputError message={errors.monto} />
                                 </div>
-
                                 <div className="grid gap-2">
-                                    <Label htmlFor="estado">Estado</Label>
-                                    <select
-                                        id="estado"
-                                        tabIndex={2}
-                                        value={String(data.estado)} // convertir el valor booleano a string
-                                        onChange={(e) => setData('estado', e.target.value === 'true')}
-                                        disabled={processing}
-                                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                    >
-                                        <option value="">-- Seleccionar estado --</option>
-                                        <option value="true">Confirmado</option>
-                                        <option value="false">Pendiente</option>
-                                    </select>
+                                    <Label htmlFor="estado">Estado transferencia</Label>
+                                    <Select value={data.estado} onValueChange={(value) => setData('estado', value)}>
+                                        <SelectTrigger id="estado" disabled={processing}>
+                                            <SelectValue placeholder="Selecciona un estado" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="true">Ejecutado</SelectItem>
+                                            <SelectItem value="false">Pendiente</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <InputError message={errors.estado} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="tipo">Tipo</Label>
-                                    <select
-                                        id="tipo"
-                                        tabIndex={3}
-                                        value={data.tipo}
-                                        onChange={(e) => setData('tipo', e.target.value)}
-                                        disabled={processing}
-                                        className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                    >
-                                        <option value="">-- Seleccionar tipo de gasto --</option>
-                                        <option value="gastos comunes">Gastos comunes</option>
-                                        <option value="personal">Personal</option>
-                                        <option value="insumos">Insumos</option>
-                                        <option value="otros">Otros</option>
-                                    </select>
+                                    <Label htmlFor="tipo">Tipo de gasto</Label>
+                                    <Select value={data.tipo} onValueChange={(value) => setData('tipo', value)}>
+                                        <SelectTrigger id="tipo" disabled={processing}>
+                                            <SelectValue placeholder="Selecciona un tipo" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Gastos comunes">Gastos comunes</SelectItem>
+                                            <SelectItem value="Mano de obra">Mano de obra</SelectItem>
+                                            <SelectItem value="Personal">Personal</SelectItem>
+                                            <SelectItem value="Material de ferreteria">Material de ferreteria</SelectItem>
+                                            <SelectItem value="Hormigon">Hormigón</SelectItem>
+                                            <SelectItem value="Plano">Plano</SelectItem>
+                                            <SelectItem value="Otros">Otros</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <InputError message={errors.tipo} />
                                 </div>
 
@@ -278,17 +318,40 @@ export default function Index({ gastos }: { gastos: any }) {
                     </DialogContent>
                 </Dialog>
             </div>
-            <div className="mt-4 w-full max-w-full px-4">
-                <DataTable
-                    title="Listado de Gastos"
-                    columns={columns}
-                    data={gastos}
-                    pagination
-                    highlightOnHover
-                    responsive
-                    persistTableHead
-                    noDataComponent="No hay gastos registrados."
-                />
+
+            <div className="mx-auto mt-4 w-full max-w-7xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="mt-4 flex items-center justify-between">
+                    {/* Grupo izquierdo: Label + Input */}
+                    <div className="ml-4 flex items-center space-x-2">
+                        <Label className="text-lg font-semibold">Buscar:</Label>
+                        <Input
+                            type="text"
+                            placeholder="Buscar..."
+                            className="w-64"
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Botón derecho */}
+                    <button onClick={exportToExcel} className="mr-4 rounded bg-green-600 px-4 py-1 text-sm text-white hover:bg-green-700">
+                        Exportar Excel
+                    </button>
+                </div>
+
+                <div className="o">
+                    <DataTable
+                        className="bg-white text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+                        columns={columns}
+                        data={filteredGastos}
+                        pagination
+                        highlightOnHover
+                        responsive
+                        persistTableHead
+                        noDataComponent="No hay gastos registrados."
+                        paginationResetDefaultPage={resetPaginationToggle}
+                    />
+                </div>
             </div>
 
             <SliderModal

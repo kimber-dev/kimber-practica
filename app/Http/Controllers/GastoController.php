@@ -15,7 +15,7 @@ class GastoController extends Controller
      */
     public function index()
     {
-        $gastos = Gasto::with('fotos')->get(); // carga también sus fotos
+        $gastos = Gasto::with('fotos')->orderBy('id', 'desc')->orderBy('fecha', 'desc')->get(); // carga también sus fotos
         return Inertia::render('gastos/index', compact('gastos'));
     
     }
@@ -33,8 +33,16 @@ class GastoController extends Controller
      */
     public function store(Request $request)
     {
-        $gasto = Gasto::create($request->all());
+
+        $gasto = Gasto::create([            
+            'descripcion' => $request->descripcion,
+            'monto' => $request->monto,
+            'fecha' => $request->fecha,
+            'tipo' => $request->tipo,
+            'estado' => $request->estado,    
+        ]);
         return redirect()->route('gastos.index');
+
     }
 
     /**
@@ -58,8 +66,19 @@ class GastoController extends Controller
      */
     public function update(Request $request, Gasto $gasto)
     {
+
         $gasto->update($request->all());
         return redirect()->route('gastos.index');
+        $validated = $request->validate([
+            'descripcion' => 'required|string|max:255',
+            'monto' => 'required|numeric',
+            'fecha' => 'required|date',
+            'tipo' => 'required|string|max:50',
+            'estado' => 'required|string|max:50',
+        ]);
+     
+
+
     }
 
     /**

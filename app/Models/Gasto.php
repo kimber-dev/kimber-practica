@@ -8,7 +8,7 @@ class Gasto extends Model
 {
     protected $table = 'gastos';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'descripcion',
@@ -16,6 +16,7 @@ class Gasto extends Model
         'fecha',
         'tipo',
         'estado',
+    
     ];
     public function fotos()
     {

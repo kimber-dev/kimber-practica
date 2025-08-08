@@ -43,6 +43,7 @@ class TransferController extends Controller
             'agente' => $request->agente,
             'monto' => $request->monto,
             'estado' => $request->estado,
+            'cuenta' => $request->cuenta,
             'observacion' => $request->observacion,
         ]);
         return redirect()->route('transfers.index');
@@ -76,6 +77,7 @@ class TransferController extends Controller
         'agente' => 'nullable|string|max:255',
         'monto' => 'required|numeric|min:0',
         'estado' => 'required|string|in:pendiente,completado,cancelado',
+            'cuenta' => 'required|string|max:255|in:Interbank,BCP',
         'observacion' => 'nullable|string|max:1000',
     ]);
 

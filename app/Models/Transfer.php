@@ -18,6 +18,7 @@ use HasFactory;
         'agente',
         'monto',
         'estado',
+        'cuenta',
         'observacion'
     ];
     public function fotos()

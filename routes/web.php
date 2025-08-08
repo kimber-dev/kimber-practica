@@ -11,8 +11,8 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+    return Inertia::render('auth/login');
+})->name('login');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('dashboard', function () {

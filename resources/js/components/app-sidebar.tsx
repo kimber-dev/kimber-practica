@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { ArrowDown10Icon, BookOpen, ChartBar, DollarSign, Folder, LayoutGrid, Users } from 'lucide-react';
+import { ArrowDown10Icon, DollarSign, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -13,11 +13,7 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-    {
-        title: 'Clientes',
-        href: '/clientes',
-        icon: Users,
-    },
+
     {
         title: 'Transferencias',
         href: '/transfers',
@@ -28,24 +24,19 @@ const mainNavItems: NavItem[] = [
         href: '/gastos',
         icon: ArrowDown10Icon,
     },
-    {
-        title: 'Reportes',
-        href: '/transfers',
-        icon: ChartBar,
-    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
+        href: 'https://github.com/kimber-dev/kimber-practica.git',
         icon: Folder,
     },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Manual',
+    //     href: '/transfers',
+    //     icon: BookOpen,
+    // },
 ];
 
 export function AppSidebar() {

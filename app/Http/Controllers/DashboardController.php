@@ -16,6 +16,8 @@ class DashboardController extends Controller
         return Inertia::render('dashboard', [
             'totalGastos' => Gasto::sum('monto'),
             'totalTransferencias' => Transfer::sum('monto'),
+            'transferBcp' => Transfer::where('cuenta', '=', 'BCP')->sum('monto'),
+            'transferInterbank' => Transfer::where('cuenta', '=', 'Interbank')->sum('monto'),
             'gastosPorTipo' => Gasto::select('tipo', DB::raw('SUM(monto) as total'))
             ->groupBy('tipo')
             ->get()
@@ -29,7 +31,7 @@ class DashboardController extends Controller
                 ->orderBy('mes')
                 ->get()
                 ->groupBy('mes'),
-        'transferenciasPorEstado' => Transfer::select('estado', \DB::raw('COUNT(*) as total'))
+        'transferenciasPorEstado' => Transfer::select('estado', DB::raw('COUNT(*) as total'))
                 ->groupBy('estado')
                 ->get(),
             'transferenciasPorMes' => Transfer::selectRaw("DATE_FORMAT(fecha, '%Y-%m') as mes, SUM(monto) as total")
